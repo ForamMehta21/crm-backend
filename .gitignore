@@ -1,0 +1,12 @@
+node_modules/
+*.local
+.env
+firebase.json
+firebase-functions.json
+yarn.lock
+package-lock.json
+yarn-error.log
+yarn-debug.log
+firebase-debug.log
+firebase-debug.log
+functions/
