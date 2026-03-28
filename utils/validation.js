@@ -32,7 +32,11 @@ const leadSchema = Joi.object({
   budget: Joi.number().allow('').min(0),
   ref: Joi.string().allow('').trim(),
   propertyType: Joi.string().valid('Residential Rent', 'Residential Sell', 'Commercial Rent', 'Commercial Sell').allow(''),
-  propertyCategory: Joi.string().allow(''),
+  // propertyCategory is now multiselect — accept array or single string
+  propertyCategory: Joi.alternatives().try(
+    Joi.array().items(Joi.string().allow('')),
+    Joi.string().allow('')
+  ),
   propertyCondition: Joi.string().allow(''),
   preferredLocation: Joi.string().allow('').trim(),
   landmark: Joi.string().allow(''),
@@ -40,7 +44,10 @@ const leadSchema = Joi.object({
   assignedTo: Joi.string().required(),
   remarks: Joi.string().allow('').trim(),
   nextCallDate: Joi.date().allow('', null),
-  purposeOfBuying: Joi.string().valid('Personal Use', 'Investment', 'Second Home', 'Gift').allow('')
+  purposeOfBuying: Joi.string().valid('Personal Use', 'Investment', 'Second Home', 'Gift').allow(''),
+  propertyPreference: Joi.string().valid('New', 'Resell').allow(''),
+  ageOfProperty: Joi.string().valid('Under Construction', '01-05', '5-10', '11-15', '15-25', '25+').allow(''),
+  timelineToBuy: Joi.string().valid('0-15 days', '15-25 days', '25-30 days', '30-60 days', '90+ days').allow('')
 });
 
 const validate = (schema) => {

@@ -1,0 +1,64 @@
+﻿[dotenv@17.2.4] injecting env (4) from .env -- tip: ≡ƒöä add secrets lifecycle management: https://dotenvx.com/ops
+node : Error importing 
+leads: MongoParseError: 
+options usenewurlparser, 
+useunifiedtopology are not 
+supported
+At line:1 char:1
++ node scripts/importFBAdsSca
+rlet.js *>&1 | Out-File 
+-Encoding utf8 log ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Error i  
+  mporting...e not support   
+ ed:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+    at parseOptions (D:\CRM-R
+elaEstate\backend\functions\n
+ode_modules\mongoose\node_mod
+ules\mongodb\lib\connection_s
+tring.js:272:15)
+    at new MongoClient (D:\CR
+M-RelaEstate\backend\function
+s\node_modules\mongoose\node_
+modules\mongodb\lib\mongo_cli
+ent.js:67:61)
+    at NativeConnection.creat
+eClient (D:\CRM-RelaEstate\ba
+ckend\functions\node_modules\
+mongoose\lib\drivers\node-mon
+godb-native\connection.js:334
+:14)
+    at 
+NativeConnection.openUri (D:\
+CRM-RelaEstate\backend\functi
+ons\node_modules\mongoose\lib
+\connection.js:1075:34)
+    at Mongoose.connect (D:\C
+RM-RelaEstate\backend\functio
+ns\node_modules\mongoose\lib\
+mongoose.js:451:15)
+    at importLeads (D:\CRM-Re
+laEstate\backend\functions\sc
+ripts\importFBAdsScarlet.js:8
+4:24)
+    at Object.<anonymous> (D:
+\CRM-RelaEstate\backend\funct
+ions\scripts\importFBAdsScarl
+et.js:124:1)
+    at Module._compile (node:
+internal/modules/cjs/loader:1
+706:14)
+    at Object..js (node:inter
+nal/modules/cjs/loader:1839:1
+0)
+    at Module.load (node:inte
+rnal/modules/cjs/loader:1441:
+32) {
+  errorLabelSet: Set(0) {}
+}

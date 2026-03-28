@@ -6,7 +6,9 @@ const {
   createLead,
   updateLead,
   deleteLead,
-  getLeadStats
+  getLeadStats,
+  addComment,
+  getFBAdsLeads
 } = require('../controllers/leadController');
 const {
   exportLeads,
@@ -20,7 +22,9 @@ const upload = require('../middleware/upload');
 
 router.route('/')
   .get(protect, adminOnly, getLeads)
-  .post(protect, adminOnly, validate(leadSchema), createLead);
+  .post(protect, adminOnly, createLead);
+
+router.get('/fb-ads', protect, adminOnly, getFBAdsLeads);
 
 router.get('/stats', protect, adminOnly, getLeadStats);
 
@@ -33,5 +37,8 @@ router.route('/:id')
   .get(protect, adminOnly, getLeadById)
   .put(protect, adminOnly, updateLead)
   .delete(protect, adminOnly, deleteLead);
+
+// Comments
+router.post('/:id/comments', protect, adminOnly, addComment);
 
 module.exports = router;

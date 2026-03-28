@@ -5,33 +5,56 @@ const Lead = require('../models/Lead');
 const cleanLeadData = (data) => {
   const cleaned = { ...data };
   
+  // propertyCategory is now an array — remove empty arrays or invalid values
+  if (cleaned.propertyCategory !== undefined) {
+    if (!Array.isArray(cleaned.propertyCategory)) {
+      // Wrap single value in array for backward compat
+      cleaned.propertyCategory = cleaned.propertyCategory ? [cleaned.propertyCategory] : [];
+    }
+    // Filter out empty strings
+    cleaned.propertyCategory = cleaned.propertyCategory.filter(v => v && v !== '');
+    if (cleaned.propertyCategory.length === 0) delete cleaned.propertyCategory;
+  }
+
   // Convert empty strings to undefined for ObjectId fields
-  if (cleaned.propertyCategory === '') delete cleaned.propertyCategory;
   if (cleaned.propertyCondition === '') delete cleaned.propertyCondition;
   if (cleaned.landmark === '') delete cleaned.landmark;
   
   // Convert empty strings to undefined for enum fields
   if (cleaned.propertyType === '') delete cleaned.propertyType;
+  if (cleaned.propertyPreference === '') delete cleaned.propertyPreference;
+  if (cleaned.ageOfProperty === '') delete cleaned.ageOfProperty;
+  if (cleaned.timelineToBuy === '') delete cleaned.timelineToBuy;
   
   // Convert empty strings to undefined for other optional fields
   if (cleaned.email === '') delete cleaned.email;
-  if (cleaned.city === '') delete cleaned.city;
+
   if (cleaned.budget === '') delete cleaned.budget;
   if (cleaned.ref === '') delete cleaned.ref;
   if (cleaned.preferredLocation === '') delete cleaned.preferredLocation;
   if (cleaned.remarks === '') delete cleaned.remarks;
+
+  // Never allow comments to be set via create/update — handled separately
+  delete cleaned.comments;
   
   return cleaned;
 };
 
+// Allowed sortable fields to prevent injection
+const SORTABLE_FIELDS = ['createdAt', 'fullName', 'budget', 'leadStatus', 'leadType'];
+
 const getLeads = asyncHandler(async (req, res) => {
-  const { leadType, city, minBudget, maxBudget, leadStatus, search, page = 1, limit = 10 } = req.query;
+  const {
+    leadType, minBudget, maxBudget, leadStatus, search, ref,
+    page = 1, limit = 10,
+    sortBy = 'createdAt', sortOrder = 'desc'
+  } = req.query;
   
   const query = {};
   
   if (leadType) query.leadType = leadType;
-  if (city) query.city = { $regex: city, $options: 'i' };
   if (leadStatus) query.leadStatus = leadStatus;
+  if (ref) query.ref = ref;
   if (minBudget || maxBudget) {
     query.budget = {};
     if (minBudget) query.budget.$gte = Number(minBudget);
@@ -49,12 +72,17 @@ const getLeads = asyncHandler(async (req, res) => {
   const limitNum = parseInt(limit);
   const skip = (pageNum - 1) * limitNum;
   
+  // Build sort object — whitelist field names for safety
+  const sortField = SORTABLE_FIELDS.includes(sortBy) ? sortBy : 'createdAt';
+  const sortDir = sortOrder === 'asc' ? 1 : -1;
+  const sortObj = { [sortField]: sortDir };
+  
   const leads = await Lead.find(query)
     .populate('propertyCategory', 'name')
     .populate('propertyCondition', 'name')
     .populate('landmark', 'name city area')
     .populate('assignedTo', 'name email')
-    .sort({ createdAt: -1 })
+    .sort(sortObj)
     .skip(skip)
     .limit(limitNum);
   
@@ -75,7 +103,8 @@ const getLeadById = asyncHandler(async (req, res) => {
     .populate('propertyCategory', 'name description')
     .populate('propertyCondition', 'name description')
     .populate('landmark', 'name city area description')
-    .populate('assignedTo', 'name email');
+    .populate('assignedTo', 'name email')
+    .populate('comments.addedBy', 'name email');
   
   if (lead) {
     res.json({
@@ -177,11 +206,49 @@ const getLeadStats = asyncHandler(async (req, res) => {
   });
 });
 
+// POST /api/leads/:id/comments — Add a comment to a lead
+const addComment = asyncHandler(async (req, res) => {
+  const { text } = req.body;
+  if (!text || !text.trim()) {
+    res.status(400);
+    throw new Error('Comment text is required');
+  }
+
+  const lead = await Lead.findById(req.params.id);
+  if (!lead) {
+    res.status(404);
+    throw new Error('Lead not found');
+  }
+
+  lead.comments.push({
+    text: text.trim(),
+    addedBy: req.admin._id,
+    addedAt: new Date()
+  });
+
+  await lead.save();
+
+  const updatedLead = await Lead.findById(lead._id)
+    .populate('comments.addedBy', 'name email');
+
+  res.json({
+    success: true,
+    data: updatedLead.comments
+  });
+});
+
+const getFBAdsLeads = asyncHandler(async (req, res) => {
+  req.query.ref = 'FB-Ads(Scarlet)';
+  return await getLeads(req, res);
+});
+
 module.exports = {
   getLeads,
   getLeadById,
   createLead,
   updateLead,
   deleteLead,
-  getLeadStats
+  getLeadStats,
+  addComment,
+  getFBAdsLeads
 };
