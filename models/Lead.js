@@ -28,7 +28,9 @@ const leadSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     required: [true, 'Phone number is required'],
-    trim: true
+    trim: true,
+    unique: true,
+    index: true
   },
   email: {
     type: String,

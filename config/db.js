@@ -1,6 +1,11 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const dns = require("dns");
 dotenv.config();
+
+// Node.js v24 on Windows breaks SRV DNS lookups against local resolvers.
+// Force Google public DNS so mongodb+srv:// can resolve correctly.
+dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
 
 const connectDB = async () => {
   try {
