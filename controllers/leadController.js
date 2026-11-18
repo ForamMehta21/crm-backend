@@ -1,6 +1,13 @@
 const asyncHandler = require('express-async-handler');
 const Lead = require('../models/Lead');
-const { getTodayRangeIST } = require('../utils/cronJobs');
+const { getTodayRangeIST } = require('../utils/dateIST');
+const { markFollowUpDone } = require('../services/followUpService');
+
+// Best effort: ticks off today's random follow-up when someone works the lead
+const tickFollowUp = (leadId, adminId) => {
+  markFollowUpDone(leadId, adminId).catch((err) =>
+    console.error('[FollowUps] Could not mark follow-up done:', err.message));
+};
 
 // Helper function to remove empty strings from object
 const cleanLeadData = (data) => {
@@ -212,6 +219,7 @@ const updateLead = asyncHandler(async (req, res) => {
   });
 
   const updatedLead = await lead.save();
+  tickFollowUp(updatedLead._id, req.admin._id);
 
   const populatedLead = await Lead.findById(updatedLead._id)
     .populate('propertyCategory', 'name')
@@ -308,6 +316,7 @@ const addComment = asyncHandler(async (req, res) => {
   });
 
   await lead.save();
+  tickFollowUp(lead._id, req.admin._id);
 
   const updatedLead = await Lead.findById(lead._id)
     .populate('comments.addedBy', 'name email');

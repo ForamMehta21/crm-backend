@@ -7,7 +7,9 @@ const Landmark = require('../models/Landmark');
 
 const LEAD_TYPES = ['Buyer', 'Broker', 'Seller'];
 const PROPERTY_TYPES = ['Residential Rent', 'Residential Sell', 'Commercial Rent', 'Commercial Sell'];
-const LEAD_STATUSES = ['New', 'Attempted 1', 'Attempted 2', 'Attempted 3', 'Follow-up', 'unqualified', 'warm' ,'hot', 'site visit planned', 'site visit done', 'booked' ,'booed someware else',];
+const LEAD_STATUSES = ['New', 'Attempted 1', 'Attempted 2', 'Attempted 3', 'Follow-up', 'unqualified', 'warm' ,'hot', 'site visit planned', 'site visit done', 'booked', 'booked somewhere else'];
+// Old misspelling still found in some spreadsheets; imported as the corrected status
+const normalizeStatus = (s) => (s === 'booed someware else' ? 'booked somewhere else' : s);
 
 const exportLeads = asyncHandler(async (req, res) => {
   const leads = await Lead.find()
@@ -225,7 +227,7 @@ const validateImport = asyncHandler(async (req, res) => {
       propertyCondition: row.getCell(10).value,
       landmark: row.getCell(11).value,
       preferredLocation: row.getCell(12).value,
-      leadStatus: row.getCell(13).value || 'New',
+      leadStatus: normalizeStatus(row.getCell(13).value) || 'New',
       remarks: row.getCell(14).value
     };
 

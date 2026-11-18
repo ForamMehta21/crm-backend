@@ -40,7 +40,7 @@ const leadSchema = Joi.object({
   propertyCondition: Joi.string().allow(''),
   preferredLocation: Joi.string().allow('').trim(),
   landmark: Joi.string().allow(''),
-  leadStatus: Joi.string().valid('New', 'Attempted 1', 'Attempted 2', 'Attempted 3', 'Follow-up', 'unqualified', 'warm', 'hot', 'site visit planned', 'site visit done', 'booked', 'booed someware else').default('New'),
+  leadStatus: Joi.string().valid('New', 'Attempted 1', 'Attempted 2', 'Attempted 3', 'Follow-up', 'unqualified', 'warm', 'hot', 'site visit planned', 'site visit done', 'booked', 'booked somewhere else').default('New'),
   assignedTo: Joi.string().allow('', null),
   remarks: Joi.string().allow('').trim(),
   nextCallDate: Joi.date().allow('', null),

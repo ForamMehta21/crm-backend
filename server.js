@@ -51,6 +51,7 @@ app.use('/api/leads', require('./routes/leadRoutes'));
 app.use('/api/builders', require('./routes/builderRoutes'));
 app.use('/api/investors', require('./routes/investorRoutes'));
 app.use('/api/whatsapp', require('./routes/whatsappRoutes'));
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 app.use(notFound);
 app.use(errorHandler);
